@@ -1,0 +1,25 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Loads from .env
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // Will store the hashed password
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Add relation to Todos later if needed
+  // todos     Todo[]
+}
+
+// Add Todo model later
+// model Todo { ... }

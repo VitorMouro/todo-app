@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2016", // Or newer like ES2020
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    // Add if using Prisma Client extensions or similar advanced features
+    // "emitDecoratorMetadata": true,
+    // "experimentalDecorators": true,
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"] // Exclude tests from build
+}
