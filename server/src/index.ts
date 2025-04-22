@@ -15,7 +15,10 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 // --- Middleware ---
-app.use(cors(/* Configure CORS options if needed, e.g., { origin: process.env.CORS_ORIGIN } */));
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || "localhost:5173",
+    credentials: true
+}));
 app.use(express.json()); // Parse JSON request bodies
 app.use(passport.initialize()); // Initialize Passport
 
@@ -27,13 +30,12 @@ app.get('/', (req: Request, res: Response) => {
 
 
 // Authentication routes
-app.use('/auth', authRouter);
+app.use('/api/auth', authRouter);
 
 // --- Protected Routes ---
 // Example protected route
-app.get('/api/me', authenticateJWT, (req: Request, res: Response) => {
+app.get('/api/auth/me', authenticateJWT, (req: Request, res: Response) => {
   // If authenticateJWT middleware passes, req.user contains the authenticated user object (from JWT payload verification)
-  console.log("/api/me request");
   res.json({ user: req.user });
 });
 

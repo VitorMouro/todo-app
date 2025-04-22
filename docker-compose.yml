@@ -30,11 +30,11 @@ services:
       - db # Wait for db service to be ready (basic readiness)
     ports:
       - "${APP_PORT:-3000}:3000" # Map host port to container port
-    volumes:
-      # Mount local source code into the container for live updates
-      # Exclude node_modules to use the ones installed in the container
-      - ./server:/usr/src/app
-      - /usr/src/app/node_modules
+    # volumes:
+    #   # Mount local source code into the container for live updates
+    #   # Exclude node_modules to use the ones installed in the container
+    #   - ./server:/usr/src/app
+    #   - /usr/src/app/node_modules
     environment:
       # Pass database connection details and other env vars
       DATABASE_URL: postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-tododb}?schema=public
@@ -50,6 +50,25 @@ services:
         - action: sync
           path: ./server
           target: /usr/src/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+
+  client:
+    container_name: todo_client_dev
+    build: ./client
+    depends_on:
+      - app
+    ports:
+      - "${CLIENT_PORT:-5173}:5173"
+    networks:
+      - app-network
+    develop:
+      watch:
+        - action: sync
+          path: ./client
+          target: /usr/src/app-client
           ignore:
             - node_modules/
         - action: rebuild
