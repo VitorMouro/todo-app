@@ -2,7 +2,7 @@
 
 URL="localhost:3000"
 
-curl -X POST $URL/auth/login \
+curl -X POST $URL/api/auth/login \
      -H "Content-Type: application/json" \
      -d '{
            "email": "user@example.com",

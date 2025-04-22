@@ -2,7 +2,7 @@
 
 URL="localhost:3000"
 
-curl -X POST $URL/auth/register \
+curl -X POST $URL/api/auth/register \
      -H "Content-Type: application/json" \
      -d '{
            "name": "John Doe",

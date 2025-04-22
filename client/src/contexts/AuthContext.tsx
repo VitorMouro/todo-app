@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import axiosInstance from './api/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 
 interface User {
   id: string;
@@ -21,12 +21,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [isLoading, setIsLoading] = useState(true); // Start loading until auth check is done
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkAuthStatus = async () => {
     setIsLoading(true);
     try {
-      // Example: Endpoint that returns user data if session is valid
       const response = await axiosInstance.get('/me', {
           headers: {
               Authorization: `Bearer ${token}`,
@@ -47,7 +46,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Check auth status on initial load
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -58,17 +56,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('token', token);
   };
 
+// TODO: Handle logout logic
   const logout = async () => {
      setIsLoading(true);
      try {
-        // Call backend logout endpoint (important to destroy server session)
         await axiosInstance.post('/auth/logout');
      } catch(error) {
         console.error("Logout error:", error);
      } finally {
         setUser(null);
-        // Optionally clear localStorage if used
-        // navigate('/login'); // Consider navigation logic placement
+        // clear localStorage
+        // navigate('/login');
         setIsLoading(false);
      }
   };

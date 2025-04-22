@@ -1,13 +1,12 @@
-// src/index.ts
 import express, { Express, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import passport from './config/passport'; // Import configured passport
-import { authenticateJWT } from './config/passport'; // Import JWT auth middleware
-import authRouter from './modules/auth'; // Import auth routes
-import prisma from './db'; // Ensure db connection is potentially used early
+import passport from './config/passport';
+import { authenticateJWT } from './config/passport';
+import authRouter from './modules/auth';
+import prisma from './db';
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config();
 
 console.log('Hello, World!');
 
@@ -19,39 +18,31 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || "localhost:5173",
     credentials: true
 }));
-app.use(express.json()); // Parse JSON request bodies
-app.use(passport.initialize()); // Initialize Passport
+app.use(express.json());
+app.use(passport.initialize());
 
 // --- Routes ---
-// Health check route
 app.get('/', (req: Request, res: Response) => {
   res.send('Todo Backend API is running! YAY!');
 });
-
 
 // Authentication routes
 app.use('/api/auth', authRouter);
 
 // --- Protected Routes ---
-// Example protected route
-app.get('/api/auth/me', authenticateJWT, (req: Request, res: Response) => {
-  // If authenticateJWT middleware passes, req.user contains the authenticated user object (from JWT payload verification)
+app.get('/api/me', authenticateJWT, (req: Request, res: Response) => {
   res.json({ user: req.user });
 });
 
-// Add other API routes here (e.g., for Todos) later
 // app.use('/api/todos', authenticateJWT, todoRouter);
 
 
 // --- Global Error Handler ---
-// Basic error handler - customize as needed
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack); // Log error stack trace to console
-    // Avoid sending stack trace in production
-    const statusCode = (err as any).statusCode || 500; // Use custom status code if available
+    console.error(err.stack);
+    const statusCode = (err as any).statusCode || 500;
     res.status(statusCode).json({
         message: err.message || 'Internal Server Error',
-        // Optionally include stack in development
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     });
 });
@@ -62,13 +53,11 @@ const server = app.listen(port, () => {
 });
 
 // --- Graceful Shutdown ---
-// Handle process termination signals
 const gracefulShutdown = (signal: string) => {
   process.on(signal, async () => {
     console.log(`\n👋 ${signal} received. Shutting down gracefully...`);
     server.close(async () => {
       console.log('✅ HTTP server closed.');
-      // Close database connection
       await prisma.$disconnect();
       console.log('✅ Database connection closed.');
       process.exit(0);
@@ -76,7 +65,7 @@ const gracefulShutdown = (signal: string) => {
   });
 };
 
-gracefulShutdown('SIGINT'); // Handle Ctrl+C
-gracefulShutdown('SIGTERM'); // Handle kill commands
+gracefulShutdown('SIGINT');
+gracefulShutdown('SIGTERM');
 
-export default app; // Export for testing purposes
+export default app;

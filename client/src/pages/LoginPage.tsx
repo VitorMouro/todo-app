@@ -1,8 +1,7 @@
-// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../axiosInstance';
-import { useAuth } from '../AuthContext';
+import axiosInstance from '../api/axiosInstance';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,21 +17,18 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Assuming your backend login endpoint is POST /api/auth/login
       const response = await axiosInstance.post('/auth/login', {
-        email: email, // Or 'email' depending on your backend setup
+        email: email,
         password: password,
       });
 
-      // Handle successful login
-      console.log('Login successful:', response.data); // response.data might contain user info
+      console.log('Login successful:', response.data);
 
       // --- Authentication State Management ---
-      // TODO: Store user info/login state (e.g., in Context, Zustand, Redux)
-      // For now, we just navigate away
-      login.login(response.data.user); // Assuming response.data.user contains user info
+      const user = response.data.user;
+      login.login(user, response.data.token);
 
-      navigate('/dashboard'); // Redirect to dashboard after successful login
+      navigate('/dashboard');
 
     } catch (err: any) {
       console.error('Login failed:', err);

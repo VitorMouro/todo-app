@@ -1,4 +1,3 @@
-// src/config/passport.ts
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
@@ -17,7 +16,6 @@ passport.use(
       if (!isMatch) {
         return done(null, false, { message: 'Incorrect password.' });
       }
-      // Return user object without password
       const { password: _, ...userWithoutPassword } = user;
       return done(null, userWithoutPassword);
     } catch (err) {
@@ -26,22 +24,21 @@ passport.use(
   })
 );
 
-// --- JWT Strategy (Verify Token) ---
+// --- JWT Strategy ---
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || 'fallbackSecret', // Use the secret from .env
+  secretOrKey: process.env.JWT_SECRET || 'fallbackSecret',
 };
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
     try {
-      // Payload contains the data encoded in the token (e.g., user id)
-      const user = await prisma.user.findUnique({ where: { id: payload.sub } }); // 'sub' is typically the user id
+      const user = await prisma.user.findUnique({ where: { id: payload.sub } });
       if (user) {
          const { password: _, ...userWithoutPassword } = user;
-         return done(null, userWithoutPassword); // Attach user (without password) to req.user
+         return done(null, userWithoutPassword);
       } else {
-        return done(null, false); // User not found
+        return done(null, false);
       }
     } catch (err) {
       return done(err, false);
