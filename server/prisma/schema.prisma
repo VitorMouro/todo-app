@@ -4,31 +4,35 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Loads from .env
+  url      = env("DATABASE_URL")
 }
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String // Will store the hashed password
+  password  String
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Add relation to Todos later if needed
-  todos     Todo[]
+  folders   Folder[]
 }
 
-model Todo {
-  id          String    @id @default(cuid())
-  title       String
-  description String?   // Optional longer description
-  completed   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  documents Document[]
+  userId   String
+  user      User     @relation(fields: [userId], references: [id])
+}
 
-  userId      String    // Foreign key to the User table
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade) // If user is deleted, their todos are deleted
-
-  @@index([userId]) // Index for faster querying of todos by user
+model Document {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  data      String
+  folderId String
+  folder    Folder   @relation(fields: [folderId], references: [id])
 }

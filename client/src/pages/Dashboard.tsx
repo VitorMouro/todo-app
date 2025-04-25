@@ -1,3 +1,7 @@
+// This page will show the dashboard for a authenticated user.
+// It will include a list of the user's folders (or projects or notebooks)
+// Each folder contains a list of markdown documents.
+
 import React from "react";
 
 const Dashboard: React.FC = () => {

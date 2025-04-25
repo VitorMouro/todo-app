@@ -8,8 +8,6 @@ import prisma from './db';
 
 dotenv.config();
 
-console.log('Hello, World!');
-
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
@@ -23,7 +21,7 @@ app.use(passport.initialize());
 
 // --- Routes ---
 app.get('/', (req: Request, res: Response) => {
-  res.send('Todo Backend API is running! YAY!');
+  res.send('Todo Backend API is running!');
 });
 
 // Authentication routes

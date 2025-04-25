@@ -27,16 +27,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     try {
       const response = await axiosInstance.get('/me', {
-          headers: {
-              Authorization: `Bearer ${token}`,
-          },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.data && response.data.user) {
         setUser(response.data.user);
         console.log("Is authenticated:", response.data.user);
       } else {
-         setUser(null);
+        setUser(null);
       }
     } catch (error) {
       console.log('Not authenticated or error checking status');
@@ -56,19 +56,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('token', token);
   };
 
-// TODO: Handle logout logic
+  // TODO: add token to blacklist
   const logout = async () => {
-     setIsLoading(true);
-     try {
-        await axiosInstance.post('/auth/logout');
-     } catch(error) {
-        console.error("Logout error:", error);
-     } finally {
-        setUser(null);
-        // clear localStorage
-        // navigate('/login');
-        setIsLoading(false);
-     }
+    setIsLoading(true);
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    setIsLoading(false);
   };
 
   const value = {
