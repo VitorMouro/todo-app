@@ -1,5 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+import { Router, Request, Response, NextFunction } from 'express';import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { query } from '../config/db';
@@ -71,7 +70,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) : 
     }
 });
 
-router.get('/user', authenticateJWT, (req: Request, res: Response) => {
+router.get('/', authenticateJWT, (req: Request, res: Response) => {
   res.json({ user: req.user });
 });
 

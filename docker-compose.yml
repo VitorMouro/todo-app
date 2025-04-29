@@ -12,11 +12,11 @@ services:
     image: postgres:latest
     container_name: todo_db_dev
     environment:
-      POSTGRES_USER: ${DB_USER:-user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-      POSTGRES_DB: ${DB_NAME:-tododb}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -28,19 +28,18 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "${APP_PORT}:3000"
     environment:
-      NODE_ENV: development
-      PORT: 3000
-      DEBUG: express:*
-      JWT_SECRET: YourSuperSecretKey123!ChangeMe!
-      DATABASE_URL: postgresql://user:password@db:5432/tododb?schema=public
-      CORS_ORIGIN: http://localhost:5173
-      DB_USER: user
-      DB_PASSWORD: password
-      DB_HOST: db
-      DB_NAME: tododb
-      DB_PORT: 5432
+      NODE_ENV: ${NODE_ENV}
+      DEBUG: ${DEBUG}
+      PORT: ${APP_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
 
     networks:
       - app-network
@@ -60,7 +59,7 @@ services:
     depends_on:
       - app
     ports:
-      - "${CLIENT_PORT:-5173}:5173"
+      - "${CLIENT_PORT}:5173"
     networks:
       - app-network
     develop:

@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const checkAuthStatus = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance.get('/me', {
+      const response = await axiosInstance.get('/auth', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
