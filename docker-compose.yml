@@ -28,13 +28,20 @@ services:
     depends_on:
       - db
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "3000:3000"
     environment:
-      DATABASE_URL: postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-tododb}?schema=public
       NODE_ENV: development
-      PORT: ${APP_PORT:-3000}
-      JWT_SECRET: ${JWT_SECRET:-YourSuperSecretKey123!ChangeMe!}
+      PORT: 3000
       DEBUG: express:*
+      JWT_SECRET: YourSuperSecretKey123!ChangeMe!
+      DATABASE_URL: postgresql://user:password@db:5432/tododb?schema=public
+      CORS_ORIGIN: http://localhost:5173
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_NAME: tododb
+      DB_PORT: 5432
+
     networks:
       - app-network
     develop:

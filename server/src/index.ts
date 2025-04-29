@@ -1,12 +1,8 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import passport from './config/passport';
-import { authenticateJWT } from './config/passport';
-import authRouter from './modules/auth';
-import prisma from './db';
-
-dotenv.config();
+import authRouter from './routes/auth';
+import { tasksRouter } from './routes/tasks';
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -28,11 +24,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', authRouter);
 
 // --- Protected Routes ---
-app.get('/api/me', authenticateJWT, (req: Request, res: Response) => {
-  res.json({ user: req.user });
-});
-
-// app.use('/api/todos', authenticateJWT, todoRouter);
+app.use('/api/tasks', tasksRouter);
 
 
 // --- Global Error Handler ---
@@ -56,8 +48,6 @@ const gracefulShutdown = (signal: string) => {
     console.log(`\n👋 ${signal} received. Shutting down gracefully...`);
     server.close(async () => {
       console.log('✅ HTTP server closed.');
-      await prisma.$disconnect();
-      console.log('✅ Database connection closed.');
       process.exit(0);
     });
   });

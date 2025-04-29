@@ -2,8 +2,9 @@ import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
-import prisma from '../db';
+import { query } from '../config/db';
 import { registerSchema, loginSchema } from '../utils/validation';
+import { authenticateJWT } from '../config/passport';
 
 const router = Router();
 const SALT_ROUNDS = 10;
@@ -11,9 +12,10 @@ const SALT_ROUNDS = 10;
 // --- Registration ---
 router.post('/register', async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
   try {
-    const { email, password, name } = registerSchema.parse(req.body);
+    const { email, password } = registerSchema.parse(req.body);
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const queryResult = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const existingUser = queryResult.rows[0];
     if (existingUser) {
       res.status(409).json({ message: 'Email already exists' });
       return ;
@@ -21,14 +23,8 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
-      select: { id: true, email: true, name: true, createdAt: true }
-    });
+    const queryString = 'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *';
+    const user = (await query(queryString, [email, hashedPassword])).rows[0];
 
     res.status(201).json({ message: 'User registered successfully', user });
 
@@ -73,6 +69,10 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) : 
          }
          next(error);
     }
+});
+
+router.get('/user', authenticateJWT, (req: Request, res: Response) => {
+  res.json({ user: req.user });
 });
 
 

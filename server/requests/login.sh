@@ -7,4 +7,10 @@ curl -X POST $URL/api/auth/login \
      -d '{
            "email": "user@example.com",
            "password": "password"
-         }'
+        }' \
+     -s \
+    | tee /dev/tty \
+    | jq -r '.token' \
+    > token.txt
+
+
