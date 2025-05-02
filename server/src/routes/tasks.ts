@@ -2,10 +2,23 @@ import { Router, Request, Response, NextFunction } from "express";
 import { authenticateJWT } from "../config/passport";
 import { query } from "../config/db";
 import { User } from "../models/user";
+import { Task } from "../models/task";
 
 export const tasksRouter = Router();
 
 tasksRouter.use(authenticateJWT);
+
+function filterData(task: Task) {
+    return {
+        id: task.id,
+        group_id: task.group_id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        created_at: task.created_at,
+        updated_at: task.updated_at,
+    };
+}
 
 tasksRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
@@ -15,14 +28,7 @@ tasksRouter.get("/", async (req: Request, res: Response, next: NextFunction) => 
         [userId]
     );
 
-    const tasks = queryResult.rows.map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    }));
+    const tasks = queryResult.rows.map((task) => filterData(task));
 
     res.status(200).json(tasks);
     return;
@@ -30,7 +36,7 @@ tasksRouter.get("/", async (req: Request, res: Response, next: NextFunction) => 
 
 tasksRouter.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
-    const taskId = parseInt(req.params.id, 10);
+    const taskId = req.params.id;
     const queryResult = await query(
         "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
         [taskId, userId]
@@ -40,91 +46,63 @@ tasksRouter.get("/:id", async (req: Request, res: Response, next: NextFunction) 
         return;
     }
     const task = queryResult.rows[0];
-    res.status(200).json({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    });
+    res.status(200).json(filterData(task));
 });
 
 tasksRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
-    const { title, description, status } = req.body;
-    if (!title || !description || !status) {
+    const { group_id: groupId, title, description, status } = req.body;
+    if (!groupId || !title || !description || !status) {
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
     const queryResult = await query(
-        "INSERT INTO tasks (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *",
-        [userId, title, description, status]
+        "INSERT INTO tasks (user_id, group_id, title, description, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [userId, groupId, title, description, status]
     );
     const task = queryResult.rows[0];
-    res.status(201).json({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    });
+    res.status(201).json(filterData(task));
 });
 
 tasksRouter.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
-    const taskId = parseInt(req.params.id, 10);
-    const { title, description, status } = req.body;
-    if (!title || !description || !status) {
+    const taskId = req.params.id;
+    const { group_id: groupId, title, description, status } = req.body;
+    if (!groupId || !title || !description || !status) {
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
     const queryResult = await query(
-        "UPDATE tasks SET title = $1, description = $2, status = $3 WHERE id = $4 AND user_id = $5 RETURNING *",
-        [title, description, status, taskId, userId]
+        "UPDATE tasks SET group_id = $1, title = $2, description = $3, status = $4 WHERE id = $5 AND user_id = $6 RETURNING *",
+        [groupId, title, description, status, taskId, userId]
     );
     if (queryResult.rowCount === 0) {
         res.status(404).json({ message: "Task not found" });
         return;
     }
     const task = queryResult.rows[0];
-    res.status(200).json({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    });
+    res.status(200).json(filterData(task));
 });
 
 tasksRouter.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
-    const taskId = parseInt(req.params.id, 10);
-    const { title, description, status } = req.body;
+    const taskId = req.params.id;
+    const { group_id: groupId, title, description, status } = req.body;
     const queryResult = await query(
-        "UPDATE tasks SET title = COALESCE($1, title), description = COALESCE($2, description), status = COALESCE($3, status) WHERE id = $4 AND user_id = $5 RETURNING *",
-        [title, description, status, taskId, userId]
+        "UPDATE tasks SET group_id = COALESCE($1, group_id), title = COALESCE($2, title), description = COALESCE($3, description), status = COALESCE($4, status) WHERE id = $5 AND user_id = $6 RETURNING *",
+        [groupId, title, description, status, taskId, userId]
     );
     if (queryResult.rowCount === 0) {
         res.status(404).json({ message: "Task not found" });
         return;
     }
     const task = queryResult.rows[0];
-    res.status(200).json({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    });
+    res.status(200).json(filterData(task));
 });
 
 tasksRouter.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
-    const taskId = parseInt(req.params.id, 10);
+    const taskId = req.params.id;
     const queryResult = await query(
         "DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING *",
         [taskId, userId]
@@ -134,12 +112,5 @@ tasksRouter.delete("/:id", async (req: Request, res: Response, next: NextFunctio
         return;
     }
     const task = queryResult.rows[0];
-    res.status(200).json({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        created_at: task.created_at,
-        updated_at: task.updated_at,
-    });
+    res.status(200).json(filterData(task));
 });

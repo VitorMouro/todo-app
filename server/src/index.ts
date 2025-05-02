@@ -3,6 +3,7 @@ import cors from 'cors';
 import passport from './config/passport';
 import authRouter from './routes/auth';
 import { tasksRouter } from './routes/tasks';
+import { taskGroupRouter } from './routes/task_groups';
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +26,8 @@ app.use('/api/auth', authRouter);
 
 // --- Protected Routes ---
 app.use('/api/tasks', tasksRouter);
+
+app.use('/api/groups', taskGroupRouter);
 
 
 // --- Global Error Handler ---

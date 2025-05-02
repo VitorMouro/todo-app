@@ -8,15 +8,6 @@ const pool = new Pool({
     port: Number(process.env.DB_PORT),
 });
 
-// const pool = new Pool({
-//     host: "db",
-//     user: "user",
-//     password: "password",
-//     database: "tododb",
-//     port: 5432,
-// });
-
-
 export const query = (text: string, params: any[]) => {
     return pool.query(text, params);
 }
