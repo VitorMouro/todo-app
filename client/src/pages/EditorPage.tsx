@@ -1,6 +1,7 @@
 import React from "react";
-import { TaskEditor } from "../components/TaskEditor";
 import Task from "../models/task";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+
 
 const mockTask: Task = {
     id: "1",
@@ -14,7 +15,18 @@ const mockTask: Task = {
 
 export const EditorPage: React.FC = () => {
     return (
-        <TaskEditor task={mockTask} mode="create">
-        </TaskEditor>
+        <SidebarProvider>
+            <Sidebar>
+                <SidebarHeader />
+                <SidebarContent>
+                    <SidebarGroup />
+                    <SidebarGroup />
+                </SidebarContent>
+                <SidebarFooter />
+            </Sidebar>
+            <main>
+            <SidebarTrigger />
+            </main>
+        </SidebarProvider>
     );
 }
