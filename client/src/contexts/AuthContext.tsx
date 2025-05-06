@@ -34,7 +34,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (response.data && response.data.user) {
         setUser(response.data.user);
-        console.log("Is authenticated:", response.data.user);
       } else {
         setUser(null);
       }

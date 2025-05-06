@@ -1,9 +1,7 @@
 import * as React from "react"
 import {
-  Command,
-  List,
-  ShoppingCart,
   Notebook,
+  List
 } from "lucide-react"
 
 import { NavProjects } from "@/components/nav-projects"
@@ -18,32 +16,53 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-const data = {
-  user: {
-    name: "Vitor",
-    email: "vitor.a.mouro@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  projects: [
-    {
-      name: "Lista de compras",
-      url: "#",
-      icon: ShoppingCart,
-    },
-    {
-      name: "Notes",
-      url: "#",
-      icon: Notebook,
-    },
-    {
-      name: "Tarefas",
-      url: "#",
-      icon: List,
-    },
-  ],
-}
+import { useAuth } from "@/contexts/AuthContext"
+import axiosInstance from "@/api/axiosInstance"
+import { useNavigate, useParams } from "react-router-dom"
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+  const { user } = useAuth()
+  const [groups, setGroups] = React.useState([])
+  const [shouldUpdate, setShouldUpdate] = React.useState(false)
+  const params = useParams()
+  const navigate = useNavigate()
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const response = await axiosInstance.get("/groups");
+      const sorted = response.data.sort((a: any, b: any) => a.name.localeCompare(b.name));
+      setGroups(sorted);
+      if (!params.projectId && sorted.length > 0)
+        navigate(`/dashboard/${sorted[0].id}`);
+    }
+    fetchData();
+    setShouldUpdate(false)
+  }, [shouldUpdate, params.projectId, navigate]);
+
+  const deleteItem = async (id: string) => {
+    const response = await axiosInstance.delete("/groups/" + id);
+    if (!response.data.id)
+      return false;
+    if (params.projectId === id)
+      navigate("/dashboard");
+    setShouldUpdate(true)
+    return true;
+  }
+
+  const data = {
+    user: {
+      email: user?.email || "",
+    },
+    projects: groups.map((group: any) => ({
+      id: group.id,
+      name: group.name,
+      url: "/dashboard/" + group.id,
+      icon: List,
+    })),
+  }
+
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
@@ -53,13 +72,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/dashboard">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
+                  <Notebook className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">Tarefas Markdown</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -67,7 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.projects} deleteItem={deleteItem}/>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

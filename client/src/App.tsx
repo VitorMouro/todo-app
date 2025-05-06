@@ -10,6 +10,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard/:projectId" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
             </Route>
             <Route path="*" element={<div>404 Not Found</div>} />
