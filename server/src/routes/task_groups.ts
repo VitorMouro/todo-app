@@ -53,6 +53,14 @@ taskGroupRouter.post("/", async (req: Request, res: Response) => {
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
+    const existingGroup = await query(
+        "SELECT * FROM task_groups WHERE user_id = $1 AND name = $2",
+        [userId, name]
+    );
+    if (existingGroup.rows.length > 0) {
+        res.status(409).json({ message: "Group name already exists" });
+        return;
+    }
     const queryResult = await query(
         "INSERT INTO task_groups (user_id, name) VALUES ($1, $2) RETURNING *",
         [userId, name]
@@ -69,28 +77,20 @@ taskGroupRouter.put("/:id", async (req: Request, res: Response) => {
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
+    const existingGroup = await query(
+        "SELECT * FROM task_groups WHERE user_id = $1 AND name = $2",
+        [userId, name]
+    );
+    if (existingGroup.rows.length > 0) {
+        res.status(409).json({ message: "Group name already exists" });
+        return;
+    }
     const queryResult = await query(
         "UPDATE task_groups SET name = $1 WHERE id = $2 AND user_id = $3 RETURNING *",
         [name, groupId, userId]
     );
     if (queryResult.rowCount === 0) {
         res.status(404).json({ message: "Group not found" });
-        return;
-    }
-    const group = queryResult.rows[0];
-    res.status(200).json(filterData(group));
-});
-
-taskGroupRouter.patch("/:id", async (req: Request, res: Response) => {
-    const userId = (req.user as User).id;
-    const groupId = req.params.id;
-    const { name } = req.body;
-    const queryResult = await query(
-        "UPDATE task_groups SET name  = COALESCE($1, name) WHERE id = $2 AND user_id = $3 RETURNING *",
-        [name, groupId, userId]
-    );
-    if (queryResult.rowCount === 0) {
-        res.status(404).json({ message: "Task not found" });
         return;
     }
     const group = queryResult.rows[0];

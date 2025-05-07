@@ -51,6 +51,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return true;
   }
 
+  const createItem = async (title: string) => {
+    const response = await axiosInstance.post("/groups", {name: title});
+    if (!response.data.id)
+      return false;
+    navigate("/dashboard/" + response.data.id);
+    setShouldUpdate(true)
+    return true;
+  }
+
+  const editItem = async (id: string, title: string) => {
+    const response = await axiosInstance.put("/groups/" + id, {name: title});
+    if (!response.data.id)
+      return false;
+    setShouldUpdate(true)
+    return true;
+  }
+
   const data = {
     user: {
       email: user?.email || "",
@@ -85,7 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} deleteItem={deleteItem}/>
+        <NavProjects projects={data.projects} deleteItem={deleteItem} createItem={createItem} editItem={editItem}/>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
