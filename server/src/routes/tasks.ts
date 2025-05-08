@@ -15,6 +15,7 @@ function filterData(task: Task) {
         title: task.title,
         description: task.description,
         status: task.status,
+        due: task.due,
         created_at: task.created_at,
         updated_at: task.updated_at,
     };

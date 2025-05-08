@@ -20,7 +20,9 @@ export default function Dashboard() {
       console.error("Error fetching tasks");
       return;
     }
-    setTasks(response.data);
+    const filteredTasks = response.data.filter((task: Task) => task.group_id === params.projectId);
+    setTasks(filteredTasks);
+    console.log(filteredTasks);
     return response.data;
   }
 
