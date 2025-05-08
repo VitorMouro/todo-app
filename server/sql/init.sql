@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     title VARCHAR(100) NOT NULL,
     description TEXT,
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+    due DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
