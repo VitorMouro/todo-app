@@ -83,6 +83,7 @@ function CreateDialog({
       return
     setOpen(false)
     createItem(title)
+    setTitle("")
   }
 
   const onTitleChange = (e: any) => {

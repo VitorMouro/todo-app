@@ -3,13 +3,14 @@ import { MenuIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { SearchForm } from "@/components/search-form"
+import { ModeToggle } from "./mode-toggle"
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar()
 
   return (
     <header className="bg-background sticky top-0 z-50 flex w-full items-center border-b">
-      <div className="flex h-(--header-height) w-full items-center gap-2 px-4">
+      <div className="flex h-(--header-height) w-full items-center justify-between gap-2 px-4">
         <Button
           className="h-8 w-8"
           variant="ghost"
@@ -18,9 +19,8 @@ export function SiteHeader() {
         >
           <MenuIcon />
         </Button>
-        {
-          // <SearchForm className="w-full sm:ml-auto sm:w-auto" />
-        }
+          <SearchForm className="w-full sm:ml-auto sm:w-auto" />
+        <ModeToggle/>
       </div>
     </header>
   )
