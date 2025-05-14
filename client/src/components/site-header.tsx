@@ -2,7 +2,6 @@ import { MenuIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
-import { SearchForm } from "@/components/search-form"
 import { ModeToggle } from "./mode-toggle"
 
 export function SiteHeader() {
@@ -19,7 +18,6 @@ export function SiteHeader() {
         >
           <MenuIcon />
         </Button>
-          <SearchForm className="w-full sm:ml-auto sm:w-auto" />
         <ModeToggle/>
       </div>
     </header>

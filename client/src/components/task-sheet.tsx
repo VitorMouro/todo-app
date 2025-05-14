@@ -7,6 +7,59 @@ import { Label } from "./ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Separator } from "./ui/separator"
 import { Sheet, SheetHeader, SheetContent, SheetTitle, SheetFooter, SheetClose } from "./ui/sheet"
+import { Textarea } from "./ui/textarea"
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
+
+const formSchema = z.object({
+    title: z.string().min(1, { message: "Título é obrigatório" }),
+    status: z.enum(["pending", "in_progress", "completed"]),
+    due: z.date().optional(),
+    description: z.string().optional(),
+})
+
+function TaskForm() {
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: "",
+            status: "pending",
+            due: undefined,
+            description: "",
+        },
+    })
+
+    function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log(data)
+    }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="shadcn" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Salvar</Button>
+      </form>
+    </Form>
+  )
+}
+
 
 export function TaskSheet({
   className,
@@ -43,7 +96,7 @@ export function TaskSheet({
         </SheetHeader>
 
         <Separator />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 h-full">
           <div className="flex flex-col gap-2">
             <Label htmlFor="title">Título</Label>
             {mode === "view" ? (
@@ -86,16 +139,17 @@ export function TaskSheet({
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 grow">
             <Label htmlFor="description">Descrição</Label>
             { mode === "view" ? (
                 <p className="text-muted-foreground text-sm">{task?.description}</p>
               ) : (
-                <Input
+                <Textarea
                   id="description"
                   defaultValue={task?.description}
                   placeholder="Descrição da tarefa"
                   required={true}
+                  className="grow resize-none"
                 />
             )}
           </div>

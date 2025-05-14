@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import axiosInstance from "@/api/axiosInstance"
 import { useNavigate, useParams } from "react-router-dom"
+import { useTheme } from "./theme-provider"
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -28,6 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [shouldUpdate, setShouldUpdate] = React.useState(false)
   const params = useParams()
   const navigate = useNavigate()
+  const theme = useTheme()
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -89,12 +91,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="/dashboard">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Notebook className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">ViLista</span>
-                  <span className="truncate text-xs">Tarefas + Markdown + Vim</span>
+                <div className="flex items-center justify-center rounded-lg">
+                  {theme.isDark ? (
+                    <img src="/vilista_full.svg" alt="Vilista" className="h-8" />
+                  ) : (
+                    <img src="/vilista_full_light.svg" alt="Vilista" className="h-8" />
+                  )}
                 </div>
               </a>
             </SidebarMenuButton>
