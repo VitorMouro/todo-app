@@ -5,15 +5,13 @@ import { useCookies } from "react-cookie"
 import { useParams } from "react-router-dom"
 import { useState, useEffect } from "react"
 import axiosInstance from "@/api/axiosInstance"
-import { TextSearch } from "lucide-react"
 import { Task, DataTable } from "@/components/data-table"
-import { DatePicker } from "@/components/date-picker"
-import { Calendar } from "@/components/ui/calendar";
 
 export default function Dashboard() {
 
   const [cookies] = useCookies(['sidebar_state']);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasksModified, setTasksModified] = useState(true);
   const params = useParams();
 
   const fetchData = async () => {
@@ -27,12 +25,13 @@ export default function Dashboard() {
     );
     setTasks(filteredTasks.map((task: Task) => ({
       ...task,
-      due: new Date(task.due), // Ensure due date is a Date object
+      due: task.due, // Ensure due date is a Date object
     })));
+    setTasksModified(false);
     return response.data;
   }
 
-  useEffect(() => { fetchData() }, [params.projectId])
+  useEffect(() => { fetchData() }, [params.projectId, tasksModified])
 
   return (
     <div className="[--header-height:calc(theme(spacing.14))]">
@@ -45,7 +44,7 @@ export default function Dashboard() {
               <div className="@container/main flex flex-1 flex-col gap-2">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                   {params.projectId ? (
-                    <DataTable data={tasks} />
+                    <DataTable data={tasks} setData={setTasks} setTasksModified={setTasksModified}/>
                   ) : (
                     <div className="flex flex-1 items-center justify-center">
                       <div className="text-center">

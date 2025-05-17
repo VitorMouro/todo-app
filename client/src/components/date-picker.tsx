@@ -16,7 +16,7 @@ export function DatePicker({
 
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
@@ -25,7 +25,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon />
-          {date ? date.toLocaleDateString() : <span>Pick a date</span>}
+          {date ? (new Date(date)).toLocaleDateString() : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent

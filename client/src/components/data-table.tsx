@@ -6,17 +6,53 @@ import { ArrowUpDown, MoreHorizontal, CircleCheckBigIcon, CircleDashedIcon, Circ
 import { Input } from "./ui/input";
 import React, { ReactNode } from "react";
 import { TaskSheet } from "./task-sheet";
+import axiosInstance from '../api/axiosInstance';
+import { AlertDialogHeader, AlertDialogFooter, AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "./ui/alert-dialog";
 
 export interface Task {
   id: string;
-  group_id: string;
   title: string;
-  description: string;
-  status: string;
-  due: Date;
+  group_id: string;
+  description: string | undefined;
+  status: "pending" | "in_progress" | "completed";
+  due: Date | undefined;
 }
 
-export function DataTable({ data }: { data: Task[] }) {
+function DeleteDialog({ task, deleteTask, open, setOpen }: { task: Task, deleteTask: (taskId: string) => Promise<void>, open: boolean, setOpen: (open: boolean) => void }) {
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Você tem certeza que deseja deletar a tarefa "{task?.title}"?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Essa ação não poderá ser desfeita.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={() => deleteTask(task?.id)}>Confirmar</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+export function DataTable({ data, setData, setTasksModified }: { data: Task[], setData: React.Dispatch<React.SetStateAction<Task[]>>, setTasksModified: React.Dispatch<React.SetStateAction<boolean>> }) {
+
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [openTaskSheet, setOpenTaskSheet] = React.useState(false)
+  const [modeTaskSheet, setModeTaskSheet] = React.useState<"view" | "edit" | "create">("create")
+  const [task, setTask] = React.useState<Task | undefined>(undefined)
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false)
+
+  const deleteTask = async (taskId: string) => {
+    const result = await axiosInstance.delete("/tasks/" + taskId);
+    if (result.status !== 200) {
+      console.error("Error deleting task");
+      return;
+    }
+    setTasksModified(true);
+  }
 
   const columns: ColumnDef<Task>[] = [
     {
@@ -88,28 +124,23 @@ export function DataTable({ data }: { data: Task[] }) {
       cell: ({ row }) => {
         const task = row.original
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8">
-                <span className="sr-only">Abrir menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                Deletar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8">
+                  <span className="sr-only">Abrir menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => { setTask(task); setOpenDeleteDialog(true) }}>
+                  Deletar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         )
       },
     },
   ]
-
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [openTaskSheet, setOpenTaskSheet] = React.useState(false)
-  const [modeTaskSheet, setModeTaskSheet] = React.useState<"view" | "edit" | "create">("create")
-  const [task, setTask] = React.useState<Task | undefined>(undefined)
 
   const table = useReactTable({
     data,
@@ -125,7 +156,9 @@ export function DataTable({ data }: { data: Task[] }) {
   return (
     <div className="flex flex-1 flex-col gap-4">
 
-      <TaskSheet open={openTaskSheet} setOpen={setOpenTaskSheet} mode={modeTaskSheet} setMode={setModeTaskSheet} task={task} setTask={setTask} />
+      <DeleteDialog task={task as Task} deleteTask={deleteTask} open={openDeleteDialog} setOpen={setOpenDeleteDialog} />
+
+      <TaskSheet open={openTaskSheet} setOpen={setOpenTaskSheet} mode={modeTaskSheet} setMode={setModeTaskSheet} task={task} setTask={setTask} setTasksModified={setTasksModified}/>
 
       <div className="flex items-center justify-between ps-4">
         <div className="flex items-center space-x-2">

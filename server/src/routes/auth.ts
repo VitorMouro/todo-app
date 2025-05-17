@@ -54,7 +54,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) : 
                 throw new Error('JWT_SECRET is not defined in environment variables');
             }
 
-            const token = jwt.sign(payload, secret, { expiresIn: '1h' });
+            const token = jwt.sign(payload, secret, { expiresIn: '30d' });
 
             res.json({ message: 'Login successful', user, token });
             return;

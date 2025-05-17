@@ -53,7 +53,7 @@ tasksRouter.get("/:id", async (req: Request, res: Response, next: NextFunction) 
 tasksRouter.post("/", async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as User).id;
     const { group_id: groupId, title, description, status } = req.body;
-    if (!groupId || !title || !description || !status) {
+    if (!groupId || !title || !status) {
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
