@@ -111,12 +111,13 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
         )
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue("due"));
-        return date.toLocaleDateString("pt-BR", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
+        const dueValue: string = row.getValue("due");
+        if (!dueValue) {
+          return "Sem data"
+        } else {
+          const date = new Date(row.getValue("due"));
+          return date.toLocaleDateString();
+        }
       }
     },
     {
@@ -124,19 +125,19 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
       cell: ({ row }) => {
         const task = row.original
         return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8">
-                  <span className="sr-only">Abrir menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => { setTask(task); setOpenDeleteDialog(true) }}>
-                  Deletar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8">
+                <span className="sr-only">Abrir menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => { setTask(task); setOpenDeleteDialog(true) }}>
+                Deletar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )
       },
     },
@@ -158,7 +159,7 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
 
       <DeleteDialog task={task as Task} deleteTask={deleteTask} open={openDeleteDialog} setOpen={setOpenDeleteDialog} />
 
-      <TaskSheet open={openTaskSheet} setOpen={setOpenTaskSheet} mode={modeTaskSheet} setMode={setModeTaskSheet} task={task} setTask={setTask} setTasksModified={setTasksModified}/>
+      <TaskSheet open={openTaskSheet} setOpen={setOpenTaskSheet} mode={modeTaskSheet} setMode={setModeTaskSheet} task={task} setTask={setTask} setTasksModified={setTasksModified} />
 
       <div className="flex items-center justify-between ps-4">
         <div className="flex items-center space-x-2">

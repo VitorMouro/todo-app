@@ -15,6 +15,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    env_file: ".env"
     ports:
       - "${DB_PORT}:5432"
     volumes:
@@ -27,20 +28,9 @@ services:
     build: ./server
     depends_on:
       - db
+    env_file: ".env"
     ports:
       - "${APP_PORT}:3000"
-    environment:
-      NODE_ENV: ${NODE_ENV}
-      DEBUG: ${DEBUG}
-      PORT: ${APP_PORT}
-      JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: ${CORS_ORIGIN}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: ${DB_HOST}
-      DB_NAME: ${DB_NAME}
-      DB_PORT: ${DB_PORT}
-
     networks:
       - app-network
     develop:
@@ -58,6 +48,7 @@ services:
     build: ./client
     depends_on:
       - app
+    env_file: ".env"
     ports:
       - "${CLIENT_PORT}:5173"
     networks:
