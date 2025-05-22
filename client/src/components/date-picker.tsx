@@ -25,7 +25,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon />
-          {date ? (new Date(date)).toLocaleDateString() : <span>Pick a date</span>}
+          {date ? (new Date(date)).toLocaleDateString("pt-BR") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent

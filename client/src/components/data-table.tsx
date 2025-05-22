@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
@@ -116,7 +116,7 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
           return "Sem data"
         } else {
           const date = new Date(row.getValue("due"));
-          return date.toLocaleDateString();
+          return date.toLocaleDateString("pt-BR");
         }
       }
     },
@@ -149,6 +149,7 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
     }
@@ -174,8 +175,9 @@ export function DataTable({ data, setData, setTasksModified }: { data: Task[], s
           <Input
             placeholder="Filtrar titulos"
             value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("title")?.setFilterValue(event.target.value)
+            onChange={(event) => {
+                table.getColumn("title")?.setFilterValue(event.target.value)
+              }
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />

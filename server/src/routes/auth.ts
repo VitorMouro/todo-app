@@ -4,6 +4,7 @@ import passport from 'passport';
 import { query } from '../config/db';
 import { registerSchema, loginSchema } from '../utils/validation';
 import { authenticateJWT } from '../config/passport';
+import { generateUsername } from 'unique-username-generator';
 
 const router = Router();
 const SALT_ROUNDS = 10;
@@ -36,6 +37,29 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
   }
 });
 
+// TODO: Remove this route in production
+// Demo auth
+router.post('/demo', async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
+
+    const username = generateUsername()
+    const email = `${username}@example.com`;
+    const password = 'password';
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const queryString = 'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *';
+    const user = (await query(queryString, [email, hashedPassword ])).rows[0];
+
+    // Generate JWT token
+    const payload = { sub: user.id, email: user.email };
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error('JWT_SECRET is not defined in environment variables');
+    }
+    const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+    res.status(200).json({ message: 'Demo user created successfully', user, token });
+});
+
+
 // --- Login ---
 router.post('/login', async (req: Request, res: Response, next: NextFunction) : Promise<void> => {
     try {
@@ -54,7 +78,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) : 
                 throw new Error('JWT_SECRET is not defined in environment variables');
             }
 
-            const token = jwt.sign(payload, secret, { expiresIn: '30d' });
+            const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
             res.json({ message: 'Login successful', user, token });
             return;
