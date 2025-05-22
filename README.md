@@ -9,7 +9,9 @@ Este projeto é um aplicativo de lista de tarefas (Todo App) desenvolvido como f
 
 ## 📸 Imagens do Projeto
 
-![](docs/video.mp4)
+![Tela de Login](docs/screenshot6.png)
+![Criar tarefa](docs/screenshot4.png)
+![Tema escuro](docs/screenshot3.png)
 
 ## ✨ Funcionalidades
 
